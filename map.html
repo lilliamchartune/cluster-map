@@ -20,6 +20,20 @@
             overflow-y: auto;
             border-left: 2px solid #ccc;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 <body>
@@ -27,7 +41,19 @@
         <div id="map"></div>
         <div id="dataPanel">
             <h2>Dados Carregados</h2>
-            <pre id="dataContent"></pre>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Municipio</th>
+                        <th>UF</th>
+                        <th>Latitude</th>
+                        <th>Longitude</th>
+                        <th>IBGE</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
     </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -46,7 +72,9 @@
         function processAndAddMarkers(data) {
             data.forEach(function(location) {
                 // Adicionar marcador com popup
-                var popupContent = `<strong>Municipio:</strong> ${location.municipio}`;
+                var popupContent = `<strong>Municipio:</strong> ${location.municipio}<br>
+                                    <strong>UF:</strong> ${location.uf}<br>
+                                    <strong>IBGE:</strong> ${location.ibge}`;
                 var marker = L.marker([parseFloat(location.lat), parseFloat(location.lng)])
                     .bindPopup(popupContent);
                 markers.addLayer(marker);
@@ -54,12 +82,27 @@
             map.addLayer(markers);
         }
 
+        // Função para preencher a tabela com dados
+        function populateTable(data) {
+            var tableBody = document.querySelector('#dataTable tbody');
+            tableBody.innerHTML = ''; // Limpar o conteúdo existente
+            data.forEach(function(location) {
+                var row = document.createElement('tr');
+                row.innerHTML = `<td>${location.municipio}</td>
+                                  <td>${location.uf}</td>
+                                  <td>${location.lat}</td>
+                                  <td>${location.lng}</td>
+                                  <td>${location.ibge}</td>`;
+                tableBody.appendChild(row);
+            });
+        }
+
         // Carregar os dados JSON
         fetch('https://script.googleusercontent.com/macros/echo?user_content_key=_cR28TNcU5wskG0jNt2KB4aDaSHRVNt0AKPu0hd34lk-l-PaAPiLTNFk1brrsfpo_B6jDtvLFTI4669s122Wqj1NKgXfzMZDm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnEgbH8FRMh1qTovacT-Ihom2ZFsfQquLr0K-Y8LZj11CjzwDCEiVwkPHOEodbiFeZCeBNOuAbwYfVBZQn-aRGsc0AC4A1dKiFQ&lib=MuQzpsIWF-Jfc1wGL0Kmi-ormXBPkeftw')
             .then(response => response.json())
             .then(data => {
-                // Exibir dados no painel lateral
-                document.getElementById('dataContent').textContent = JSON.stringify(data, null, 2);
+                // Exibir dados na tabela lateral
+                populateTable(data);
                 
                 // Processar e adicionar marcadores ao mapa
                 processAndAddMarkers(data);
@@ -68,6 +111,3 @@
     </script>
 </body>
 </html>
-
-
-
