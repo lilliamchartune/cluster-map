@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,8 +27,9 @@
         // Função para processar e adicionar dados
         function processAndAddMarkers(data) {
             data.forEach(function(location) {
-                var popupContent = `<strong>IBGE Code:</strong> ${location.CD_GEOMUNICIPIO_IBGE}`;
-                var marker = L.marker([location.LAT, location.LONG]).bindPopup(popupContent);
+                // Adicionar marcador com popup
+                var popupContent = `<strong>Municipio:</strong> ${location.municipio}<br><strong>IBGE Code:</strong> ${location.ibge}`;
+                var marker = L.marker([parseFloat(location.lat), parseFloat(location.lng)]).bindPopup(popupContent);
                 markers.addLayer(marker);
             });
             map.addLayer(markers);
@@ -40,11 +42,12 @@
                 // Verifique a estrutura do JSON retornado
                 console.log(data); // Adicione este console.log para verificar a estrutura dos dados
                 
-                // Se o JSON estiver em um formato diferente, ajuste a função de processamento
+                // Processar e adicionar marcadores ao mapa
                 processAndAddMarkers(data);
             })
             .catch(error => console.error('Erro ao carregar dados:', error));
     </script>
 </body>
 </html>
+
 
