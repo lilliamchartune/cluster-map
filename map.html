@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -106,7 +107,7 @@
 
         // Função para carregar os dados do JSON
         function loadData() {
-            fetch('https://script.google.com/macros/s/AKfycbyCj47H_lAiXlWE-Xzzs7-JDGzjRYby-YysWFr0_kXYGkPW18qKosXfADCpxkjZ_jfl/exec')
+            fetch('https://raw.githubusercontent.com/lilliamchartune/cluster-map/main/dm_geo.json')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Erro na requisição: ' + response.status);
