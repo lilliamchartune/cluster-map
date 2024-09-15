@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OpenLayers Cluster Map</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openlayers/6.9.0/ol.css" />
+    <style>
+        #map { height: 100vh; width: 100vw; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/6.9.0/ol.js"></script>
+    <script>
+        var source = new ol.source.Vector({});
+
+        var clusterSource = new ol.source.Cluster({
+            distance: 40,
+            source: source
+        });
+
+        var vectorLayer = new ol.layer.Vector({
+            source: clusterSource,
+            style: function (feature) {
+                var size = feature.get('features').length;
+                return new ol.style.Style({
+                    image: new ol.style.Circle({
+                        radius: 10 + size,
+                        fill: new ol.style.Fill({ color: '#ffcc33' })
+                    }),
+                    text: new ol.style.Text({
+                        text: size.toString(),
+                        fill: new ol.style.Fill({ color: '#000' })
+                    })
+                });
+            }
+        });
+
+        var map = new ol.Map({
+            target: 'map',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                }),
+                vectorLayer
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([-51.9253, -14.235]), // Centralizado no Brasil
+                zoom: 4
+            })
+        });
+
+        // Carregar os dados JSON
+        fetch('https://script.googleusercontent.com/macros/echo?user_content_key=nDQ30LFnTSElVxoeiOQDt03IdqTZjHq0T3Bp554gw5tymGWRNAGno-7CG-lnRGigCqKrUBl6xEmYFs8McIllY3L6YHwPYHPlm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnEgbH8FRMh1qTovacT-Ihom2ZFsfQquLr0K-Y8LZj11CjzwDCEiVwkPHOEodbiFeZCeBNOuAbwYfVBZQn-aRGsc0AC4A1dKiFQ&lib=MuQzpsIWF-Jfc1wGL0Kmi-ormXBPkeftw')
+            .then(response => response.json())
+            .then(data => {
+                var features = data.map(function(location) {
+                    return new ol.Feature({
+                        geometry: new ol
