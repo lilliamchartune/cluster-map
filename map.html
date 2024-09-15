@@ -28,8 +28,9 @@
         function processAndAddMarkers(data) {
             data.forEach(function(location) {
                 // Adicionar marcador com popup
-                var popupContent = `<strong>Municipio:</strong> ${location.municipio}<br><strong>IBGE Code:</strong> ${location.ibge}`;
-                var marker = L.marker([parseFloat(location.lat), parseFloat(location.lng)]).bindPopup(popupContent);
+                var popupContent = `<strong>Municipio:</strong> ${location.municipio}`;
+                var marker = L.marker([parseFloat(location.lat), parseFloat(location.lng)])
+                    .bindPopup(popupContent);
                 markers.addLayer(marker);
             });
             map.addLayer(markers);
@@ -49,5 +50,6 @@
     </script>
 </body>
 </html>
+
 
 
