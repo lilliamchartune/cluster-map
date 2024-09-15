@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,11 +6,30 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <style>
-        #map { height: 100vh; }
+        #container {
+            display: flex;
+            height: 100vh;
+        }
+        #map {
+            flex: 3;
+            height: 100%;
+        }
+        #dataPanel {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            border-left: 2px solid #ccc;
+        }
     </style>
 </head>
 <body>
-    <div id="map"></div>
+    <div id="container">
+        <div id="map"></div>
+        <div id="dataPanel">
+            <h2>Dados Carregados</h2>
+            <pre id="dataContent"></pre>
+        </div>
+    </div>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <script>
@@ -40,8 +58,8 @@
         fetch('https://script.googleusercontent.com/macros/echo?user_content_key=_cR28TNcU5wskG0jNt2KB4aDaSHRVNt0AKPu0hd34lk-l-PaAPiLTNFk1brrsfpo_B6jDtvLFTI4669s122Wqj1NKgXfzMZDm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnEgbH8FRMh1qTovacT-Ihom2ZFsfQquLr0K-Y8LZj11CjzwDCEiVwkPHOEodbiFeZCeBNOuAbwYfVBZQn-aRGsc0AC4A1dKiFQ&lib=MuQzpsIWF-Jfc1wGL0Kmi-ormXBPkeftw')
             .then(response => response.json())
             .then(data => {
-                // Verifique a estrutura do JSON retornado
-                console.log(data); // Adicione este console.log para verificar a estrutura dos dados
+                // Exibir dados no painel lateral
+                document.getElementById('dataContent').textContent = JSON.stringify(data, null, 2);
                 
                 // Processar e adicionar marcadores ao mapa
                 processAndAddMarkers(data);
