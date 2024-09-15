@@ -1,8 +1,10 @@
 
 
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leaflet Cluster Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
@@ -45,7 +47,7 @@
             <table id="dataTable">
                 <thead>
                     <tr>
-                        <th>Municipio</th>
+                        <th>Município</th>
                         <th>UF</th>
                         <th>Latitude</th>
                         <th>Longitude</th>
@@ -57,66 +59,72 @@
             </table>
         </div>
     </div>
+
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
     <script>
-        // Inicializar o mapa
-        var map = L.map('map').setView([-14.235, -51.9253], 4); // Centralizado no Brasil
+        // Inicializa o mapa centrado no Brasil
+        var map = L.map('map').setView([-14.235, -51.9253], 4);
 
+        // Carrega as tiles do OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
+        // Cria o grupo de clusters para os marcadores
         var markers = L.markerClusterGroup();
 
-        // Função para processar e adicionar dados
+        // Função para adicionar marcadores ao mapa e preencher a tabela
         function processAndAddMarkers(data) {
-            console.log('Dados recebidos:', data); // Depuração
+            var tableBody = document.querySelector('#dataTable tbody');
+            tableBody.innerHTML = ''; // Limpa a tabela antes de preencher
+
             data.forEach(function(location) {
-                // Verificar se os dados são válidos
                 if (location.lat && location.lng) {
-                    var popupContent = `<strong>Municipio:</strong> ${location.municipio}<br>
-                                        <strong>UF:</strong> ${location.uf}<br>
-                                        <strong>IBGE:</strong> ${location.ibge}`;
+                    // Adiciona o marcador no mapa
                     var marker = L.marker([parseFloat(location.lat), parseFloat(location.lng)])
-                        .bindPopup(popupContent);
+                        .bindPopup(`<strong>Município:</strong> ${location.municipio}<br>
+                                    <strong>UF:</strong> ${location.uf}<br>
+                                    <strong>IBGE:</strong> ${location.ibge}`);
                     markers.addLayer(marker);
+
+                    // Adiciona a linha na tabela
+                    var row = document.createElement('tr');
+                    row.innerHTML = `<td>${location.municipio}</td>
+                                     <td>${location.uf}</td>
+                                     <td>${location.lat}</td>
+                                     <td>${location.lng}</td>
+                                     <td>${location.ibge}</td>`;
+                    tableBody.appendChild(row);
                 } else {
-                    console.warn('Dados inválidos:', location); // Depuração
+                    console.warn('Coordenadas inválidas:', location);
                 }
             });
+
+            // Adiciona o grupo de clusters no mapa
             map.addLayer(markers);
         }
 
-        // Função para preencher a tabela com dados
-        function populateTable(data) {
-            console.log('Dados a serem exibidos na tabela:', data); // Depuração
-            var tableBody = document.querySelector('#dataTable tbody');
-            tableBody.innerHTML = ''; // Limpar o conteúdo existente
-            data.forEach(function(location) {
-                var row = document.createElement('tr');
-                row.innerHTML = `<td>${location.municipio || 'N/A'}</td>
-                                  <td>${location.uf || 'N/A'}</td>
-                                  <td>${location.lat || 'N/A'}</td>
-                                  <td>${location.lng || 'N/A'}</td>
-                                  <td>${location.ibge || 'N/A'}</td>`;
-                tableBody.appendChild(row);
-            });
+        // Função para carregar os dados do JSON
+        function loadData() {
+            fetch('https://script.googleusercontent.com/macros/echo?user_content_key=_cR28TNcU5wskG0jNt2KB4aDaSHRVNt0AKPu0hd34lk-l-PaAPiLTNFk1brrsfpo_B6jDtvLFTI4669s122Wqj1NKgXfzMZDm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnEgbH8FRMh1qTovacT-Ihom2ZFsfQquLr0K-Y8LZj11CjzwDCEiVwkPHOEodbiFeZCeBNOuAbwYfVBZQn-aRGsc0AC4A1dKiFQ&lib=MuQzpsIWF-Jfc1wGL0Kmi-ormXBPkeftw')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Erro na requisição: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Dados carregados:', data); // Exibe os dados no console
+                    processAndAddMarkers(data); // Processa os dados
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar dados:', error);
+                });
         }
 
-        // Carregar os dados JSON
-        fetch('https://script.googleusercontent.com/macros/echo?user_content_key=_cR28TNcU5wskG0jNt2KB4aDaSHRVNt0AKPu0hd34lk-l-PaAPiLTNFk1brrsfpo_B6jDtvLFTI4669s122Wqj1NKgXfzMZDm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnEgbH8FRMh1qTovacT-Ihom2ZFsfQquLr0K-Y8LZj11CjzwDCEiVwkPHOEodbiFeZCeBNOuAbwYfVBZQn-aRGsc0AC4A1dKiFQ&lib=MuQzpsIWF-Jfc1wGL0Kmi-ormXBPkeftw')
-            .then(response => response.json())
-            .then(data => {
-                // Exibir dados na tabela lateral
-                populateTable(data);
-                
-                // Processar e adicionar marcadores ao mapa
-                processAndAddMarkers(data);
-            })
-            .catch(error => {
-                console.error('Erro ao carregar dados:', error);
-            });
+        // Carrega os dados quando a página é carregada
+        window.onload = loadData;
     </script>
 </body>
 </html>
