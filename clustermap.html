@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cluster Map</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"></script>
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+    <style>
+      #map {
+        height: 100%;
+        width: 100%;
+      }
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
 
+    <script>
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 4,
+          center: { lat: -14.235, lng: -51.9253 }  // Centralizado no Brasil
+        });
+
+        // Buscar os dados JSON
+        fetch('https://script.google.com/macros/s/YOUR_GOOGLE_APPS_SCRIPT_URL/exec')
+          .then(response => response.json())
+          .then(data => {
+            var markers = data.map(function(location) {
+              return new google.maps.Marker({
+                position: { lat: location.lat, lng: location.lng },
+                title: location.municipio + ", " + location.uf + " (IBGE: " + location.ibge + ")"
+              });
+            });
+
+            // Aplicar clustering
+            var markerCluster = new MarkerClusterer(map, markers, {
+              imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+            });
+          })
+          .catch(error => console.error('Erro ao carregar os dados do mapa:', error));
+      }
+
+      google.maps.event.addDomListener(window, 'load', initMap);
+    </script>
+  </body>
+</html>
